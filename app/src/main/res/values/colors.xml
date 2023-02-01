@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="action01">#FF0080FF</color>
+    <color name="grey01">#FF22292F</color>
+    <color name="grey02">#FF4E667E</color>
+    <color name="grey03">#FF91A3B6</color>
+    <color name="grey04">#FFCCD9E5</color>
+    <color name="bg01">#FFFFFF</color>
+    <color name="bg02">#FFEEF0F2</color>
+    <color name="red01">#FFD80909</color>
+</resources>
