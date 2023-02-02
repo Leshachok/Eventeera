@@ -7,3 +7,15 @@ data class Event(
     val startTime: String,
     val endTime: String
 )
+
+class EventType {
+    companion object {
+        val ACTIVITY = "Активність"
+        val MEETING = "Зустріч"
+        val REST = "Відпочинок"
+        val WORK = "Робота"
+        val SPORT = "Спорт"
+
+        val entries = listOf(ACTIVITY, MEETING, REST, WORK, SPORT)
+    }
+}

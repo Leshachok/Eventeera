@@ -7,20 +7,22 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import app.eventeera.android.data.model.Event
 import app.eventeera.android.data.repository.CalendarRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.log
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = CalendarRepository()
 
-    private val pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    val pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    val selectedDate = MutableStateFlow<LocalDate>(LocalDate.now())
+    private val selectedDate = MutableStateFlow<LocalDate>(LocalDate.now())
 
     val date = selectedDate.asLiveData()
 
@@ -28,7 +30,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     val eventsFlow = selectedDate.flatMapLatest { date ->
         repository.events.filter { event ->
-            val eventTime = LocalDateTime.parse(event.timeStamp, pattern)
+            val eventTime = LocalDate.parse(event.timeStamp, pattern)
             date.dayOfYear == eventTime.dayOfYear
         }.sortedBy { it.startTime }.asFlow()
     }
@@ -44,6 +46,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val date = selectedDate.value
             selectedDate.emit(date.plusDays(1))
+        }
+    }
+
+    fun addEvent(event: Event){
+        repository.addEvent(event)
+        viewModelScope.launch {
+            val date = selectedDate.value
+            selectedDate.emit(date)
         }
     }
 

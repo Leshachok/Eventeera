@@ -16,9 +16,33 @@
 
         <item name="android:textColorPrimary">@color/grey01</item>
         <item name="android:textColorSecondary">@color/grey02</item>
+
+        <item name="materialTimePickerTheme">@style/Theme.MaterialTimePicker</item>
+        <item name="materialCalendarTheme">@style/Theme.MaterialDatePicker</item>
+
     </style>
 
 
+    <style name="Theme.MaterialDatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/action01</item>
+        <item name="colorOnPrimary">@color/bg01</item>
+        <item name="colorSecondary">@color/action01</item>
+        <item name="colorOnSecondary">@color/bg01</item>
+        <item name="colorSurface">@color/bg01</item>
+        <item name="colorOnSurface">@color/grey02</item>
+    </style>
+
+
+    <style name="Theme.MaterialTimePicker" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/action01</item>
+        <item name="colorOnPrimary">@color/bg01</item>
+        <item name="colorSecondary">@color/action01</item>
+        <item name="colorOnSecondary">@color/bg01</item>
+        <item name="colorSurface">@color/bg01</item>
+        <item name="colorOnSurface">@color/grey02</item>
+    </style>
 
     <style name="ManropeRegular">
         <item name="fontFamily">@font/manrope_regular</item>
