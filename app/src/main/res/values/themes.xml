@@ -9,7 +9,7 @@
         <item name="colorOnSecondary">@color/bg01</item>
         <!-- Status bar color. -->
         <item name="android:colorBackground">@color/bg02</item>
-        <item name="android:statusBarColor">?android:colorBackground</item>
+        <item name="android:statusBarColor">@color/bg01</item>
         <!-- Customize your theme here. -->
         <item name="colorSurface">@color/bg01</item>
         <item name="colorOnSurface">@color/bg02</item>
