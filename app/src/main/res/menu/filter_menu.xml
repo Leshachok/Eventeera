@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/option_1"
+            android:title="Активність"
+            android:checkable="true" />
+        <item android:id="@+id/option_2"
+            android:title="Зустріч"
+            android:checkable="true" />
+        <item android:id="@+id/option_3"
+            android:title="Відпочинок"
+            android:checkable="true" />
+        <item android:id="@+id/option_4"
+            android:title="Робота"
+            android:checkable="true" />
+        <item android:id="@+id/option_5"
+            android:title="Спорт"
+            android:checkable="true" />
+    </group>
+</menu>

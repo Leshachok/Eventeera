@@ -19,7 +19,6 @@
 
         <item name="materialTimePickerTheme">@style/Theme.MaterialTimePicker</item>
         <item name="materialCalendarTheme">@style/Theme.MaterialDatePicker</item>
-
     </style>
 
 

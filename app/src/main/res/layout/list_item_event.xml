@@ -54,17 +54,16 @@
         android:textSize="16sp"/>
 
     <com.google.android.material.chip.Chip
+        android:id="@+id/eventType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Активність"
-        android:textColor="#07981E"
         android:textAppearance="@style/ManropeSemibold"
         android:textSize="14sp"
         app:ensureMinTouchTargetSize="false"
         app:chipCornerRadius="8dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:chipBackgroundColor="#1A07981E"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

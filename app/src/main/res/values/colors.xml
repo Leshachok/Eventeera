@@ -7,5 +7,15 @@
     <color name="grey04">#FFCCD9E5</color>
     <color name="bg01">#FFFFFF</color>
     <color name="bg02">#FFEEF0F2</color>
-    <color name="red01">#FFD80909</color>
+
+    <color name="red01">#FFF1450E</color>
+    <color name="red01op">#1AF1450E</color>
+    <color name="green01">#FF07981E</color>
+    <color name="green01op">#1A07981E</color>
+    <color name="blue01">#FF1AB3BC</color>
+    <color name="blue01op">#1A1AB3BC</color>
+    <color name="blue02">#FF621ABC</color>
+    <color name="blue02op">#1A621ABC</color>
+    <color name="orange01">#FFF1960E</color>
+    <color name="orange01op">#1AF1960E</color>
 </resources>

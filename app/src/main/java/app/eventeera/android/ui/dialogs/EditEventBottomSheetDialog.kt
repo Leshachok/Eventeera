@@ -8,31 +8,31 @@ import androidx.fragment.app.FragmentManager
 import app.eventeera.android.R
 import app.eventeera.android.data.model.Event
 import app.eventeera.android.data.model.EventType
-import app.eventeera.android.databinding.BottomsheetEventCreateBinding
+import app.eventeera.android.databinding.BottomsheetEventEditBinding
 import app.eventeera.android.util.EventManager
 import app.eventeera.android.util.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-class CreateEventBottomSheetDialog(context: Context, private val fragmentManager: FragmentManager, private val eventCreator: EventManager) : BottomSheetDialog(context) {
+class EditEventBottomSheetDialog(context: Context, private val fragmentManager: FragmentManager, private val eventManager: EventManager, private var event: Event) : BottomSheetDialog(context) {
 
-    private var _binding: BottomsheetEventCreateBinding? = null
+    private var _binding: BottomsheetEventEditBinding? = null
     private val binding get() = _binding!!
 
-    var title: String? = null
     var date: String? = null
     var startTime: String? = null
     var endTime: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _binding = BottomsheetEventCreateBinding.inflate(layoutInflater)
+        _binding = BottomsheetEventEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         binding.spinner.adapter = ArrayAdapter(
@@ -56,39 +56,99 @@ class CreateEventBottomSheetDialog(context: Context, private val fragmentManager
         binding.buttonCreateEvent.setOnClickListener {
             checkFields()
         }
+
+        binding.buttonDeleteEvent.setOnClickListener {
+            dismiss()
+            eventManager.onEventRemoved(event.id)
+        }
+
+        fillFields()
+    }
+
+    private fun fillFields() {
+        binding.eventTitleEditText.setText(event.title)
+
+        val selectedItem = when(event.type){
+            EventType.ACTIVITY -> 0
+            EventType.MEETING -> 1
+            EventType.REST -> 2
+            EventType.WORK -> 3
+            else -> 4
+        }
+        binding.spinner.setSelection(selectedItem)
+
+
+        val timeStamp = event.timeStamp
+        val localDate = LocalDate.parse(timeStamp)
+
+        val uaDateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+            .withLocale(Locale.forLanguageTag("uk")) // 2
+        val uaFormattedDate = localDate.format(uaDateFormatter)
+
+        binding.textDate.text = uaFormattedDate
+        binding.textStartTime.text = event.startTime
+        binding.textEndTime.text = event.endTime
     }
 
     private fun checkFields() {
         val title = binding.eventTitleEditText.text
+
         if(title.isNullOrEmpty()){
             Toast.makeText(context, "Заповніть назву.", Toast.LENGTH_SHORT).show()
             return
         }
-        if(null in listOf(date, startTime, endTime)){
-            Toast.makeText(context, "Заповніть інформацію про захід.", Toast.LENGTH_SHORT).show()
-            return
+
+        startTime?.let { start ->
+            endTime?.let { end ->
+                if(start > end) {
+                    Toast.makeText(context, "Некоректний час.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+            } ?: kotlin.run {
+                if(start > event.endTime) {
+                    Toast.makeText(context, "Некоректний час.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+            }
         }
-        if(startTime!! > endTime!!){
-            Toast.makeText(context, "Некоректний час.", Toast.LENGTH_SHORT).show()
-            return
+
+        endTime?.let { end ->
+            if(startTime == null){
+                if(end < event.startTime) {
+                    Toast.makeText(context, "Некоректний час.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+            }
         }
-        this.title = title.toString()
-        createEvent()
+
+        editEvent()
     }
 
-    private fun createEvent() {
+    private fun editEvent() {
+        val title = binding.eventTitleEditText.text.toString()
+
+        if(title != event.title){
+            event.title = title
+        }
+
+        startTime?.let {
+            event.startTime = it
+        }
+
+        endTime?.let {
+            event.endTime = it
+        }
+
+        date?.let {
+            event.timeStamp = it
+        }
         val type = binding.spinner.selectedItem.toString()
-        val id = (Math.random() * 1_000_000).toLong()
-        val event = Event(
-            id,
-            title = title!!,
-            type = type,
-            timeStamp =  date!!,
-            startTime = startTime!!,
-            endTime = endTime!!
-        )
-        eventCreator.onEventCreated(event)
+        if(type != event.type){
+            event.type = type
+        }
+
         dismiss()
+        eventManager.onEventEdited(event)
     }
 
     private fun showTimePicker(start: Boolean){

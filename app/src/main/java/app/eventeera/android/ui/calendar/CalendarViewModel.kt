@@ -1,60 +1,70 @@
 package app.eventeera.android.ui.calendar
 
 import android.app.Application
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import app.eventeera.android.data.model.Event
+import app.eventeera.android.data.model.EventType
 import app.eventeera.android.data.repository.CalendarRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.log
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = CalendarRepository()
 
-    val pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val eventDateFlow = MutableStateFlow<LocalDate>(LocalDate.now())
+    private val eventTypeFlow = MutableStateFlow<String?>(null)
 
-    private val selectedDate = MutableStateFlow<LocalDate>(LocalDate.now())
-
-    val date = selectedDate.asLiveData()
+    val date = eventDateFlow.asLiveData()
 
     private val TAG = "CalendarViewModel"
 
-    val eventsFlow = selectedDate.flatMapLatest { date ->
-        repository.events.filter { event ->
-            val eventTime = LocalDate.parse(event.timeStamp, pattern)
-            date.dayOfYear == eventTime.dayOfYear
-        }.sortedBy { it.startTime }.asFlow()
+    val eventsFlow = eventDateFlow.combine(eventTypeFlow) { date, type ->
+        println(date)
+        println(type)
+        repository.getEvents(date, type)
+    }
+
+    fun setDate(date: LocalDate){
+        viewModelScope.launch {
+            eventDateFlow.emit(date)
+        }
+    }
+
+    fun filterByType(eventType: String?){
+        viewModelScope.launch {
+            eventTypeFlow.emit(eventType)
+        }
     }
 
     fun previousDate(){
         viewModelScope.launch {
-            val date = selectedDate.value
-            selectedDate.emit(date.minusDays(1))
+            val date = eventDateFlow.value
+            eventDateFlow.emit(date.minusDays(1))
         }
     }
 
     fun nextDate(){
         viewModelScope.launch {
-            val date = selectedDate.value
-            selectedDate.emit(date.plusDays(1))
+            val date = eventDateFlow.value
+            eventDateFlow.emit(date.plusDays(1))
         }
     }
 
     fun addEvent(event: Event){
         repository.addEvent(event)
-        viewModelScope.launch {
-            val date = selectedDate.value
-            selectedDate.emit(date)
-        }
+    }
+
+    fun editEvent(event: Event) {
+        repository.editEvent(event)
+    }
+
+    fun removeEvent(id: Long) {
+        repository.removeEvent(id)
     }
 
 }
