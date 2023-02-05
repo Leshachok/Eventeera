@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomsheet_event_create_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bsht_bg"
@@ -217,11 +219,40 @@
         android:textSize="16sp"
         android:textColor="?android:textColorSecondary"/>
 
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/eventStartTime"
+        android:layout_marginTop="12dp"
+        android:text="Учасники"
+        android:textAppearance="@style/ManropeSemibold"
+        android:textSize="16sp"
+        android:textColor="?android:textColorPrimary"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/friendsRecyclerView"
+        android:maxHeight="150dp"
+        android:minHeight="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        app:boxBackgroundColor="?colorOnSurface"
+        app:boxCornerRadiusBottomEnd="4dp"
+        app:boxCornerRadiusBottomStart="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView8"
+        tools:listitem="@layout/list_item_contact_invite"
+        tools:itemCount="2"/>
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonCreateEvent"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        app:layout_constraintTop_toBottomOf="@id/eventStartTime"
+        app:layout_constraintTop_toBottomOf="@id/friendsRecyclerView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/accent_bg"

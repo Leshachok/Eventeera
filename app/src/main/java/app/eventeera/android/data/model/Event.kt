@@ -6,7 +6,8 @@ data class Event(
     var type: String,
     var timeStamp: String,
     var startTime: String,
-    var endTime: String
+    var endTime: String,
+    val invitedContacts: List<Contact> = mutableListOf()
 )
 
 class EventType {

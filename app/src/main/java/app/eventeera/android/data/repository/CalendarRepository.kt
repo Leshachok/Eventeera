@@ -6,7 +6,7 @@ import app.eventeera.android.util.pattern
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class CalendarRepository() {
+class CalendarRepository {
 
     private val events = mutableListOf<Event>()
 

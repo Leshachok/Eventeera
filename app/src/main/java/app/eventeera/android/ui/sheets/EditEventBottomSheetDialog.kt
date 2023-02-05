@@ -1,17 +1,18 @@
-package app.eventeera.android.ui.dialogs
+package app.eventeera.android.ui.sheets
 
-import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.fragment.app.FragmentManager
 import app.eventeera.android.R
 import app.eventeera.android.data.model.Event
 import app.eventeera.android.data.model.EventType
 import app.eventeera.android.databinding.BottomsheetEventEditBinding
 import app.eventeera.android.util.EventManager
 import app.eventeera.android.util.formatTime
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import java.time.Instant
@@ -21,7 +22,10 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-class EditEventBottomSheetDialog(context: Context, private val fragmentManager: FragmentManager, private val eventManager: EventManager, private var event: Event) : BottomSheetDialog(context) {
+class EditEventBottomSheetDialog(
+    private val eventManager: EventManager,
+    private var event: Event
+) : BottomSheetDialogFragment(R.layout.bottomsheet_event_edit) {
 
     private var _binding: BottomsheetEventEditBinding? = null
     private val binding get() = _binding!!
@@ -30,13 +34,15 @@ class EditEventBottomSheetDialog(context: Context, private val fragmentManager: 
     var startTime: String? = null
     var endTime: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = BottomsheetEventEditBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         binding.spinner.adapter = ArrayAdapter(
-            context,
+            requireContext(),
             R.layout.event_type_spinner_item,
             EventType.entries
         )
@@ -63,6 +69,8 @@ class EditEventBottomSheetDialog(context: Context, private val fragmentManager: 
         }
 
         fillFields()
+
+        return binding.root
     }
 
     private fun fillFields() {
@@ -169,7 +177,7 @@ class EditEventBottomSheetDialog(context: Context, private val fragmentManager: 
                 endTime = time
             }
         }
-        picker.show(fragmentManager, if(start) "timePickerStart" else "timePickerEnd")
+        picker.show(parentFragmentManager, if(start) "timePickerStart" else "timePickerEnd")
     }
 
     private fun showDatePicker(){
@@ -179,7 +187,7 @@ class EditEventBottomSheetDialog(context: Context, private val fragmentManager: 
         picker.addOnPositiveButtonClickListener {
             handleSelectedDate(it)
         }
-        picker.show(fragmentManager, "datePicker")
+        picker.show(parentFragmentManager, "datePicker")
     }
 
     private fun handleSelectedDate(epoch: Long?) {

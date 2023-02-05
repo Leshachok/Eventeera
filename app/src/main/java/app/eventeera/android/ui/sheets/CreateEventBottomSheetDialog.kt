@@ -1,17 +1,22 @@
-package app.eventeera.android.ui.dialogs
+package app.eventeera.android.ui.sheets
 
-import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import app.eventeera.android.R
+import app.eventeera.android.data.model.ContactInvite
 import app.eventeera.android.data.model.Event
 import app.eventeera.android.data.model.EventType
+import app.eventeera.android.data.repository.ContactRepository
 import app.eventeera.android.databinding.BottomsheetEventCreateBinding
+import app.eventeera.android.ui.adapter.FriendAdapter
 import app.eventeera.android.util.EventManager
 import app.eventeera.android.util.formatTime
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import java.time.Instant
@@ -20,23 +25,42 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-class CreateEventBottomSheetDialog(context: Context, private val fragmentManager: FragmentManager, private val eventCreator: EventManager) : BottomSheetDialog(context) {
+class CreateEventBottomSheetDialog(private val eventCreator: EventManager) : BottomSheetDialogFragment(R.layout.bottomsheet_event_create) {
 
     private var _binding: BottomsheetEventCreateBinding? = null
     private val binding get() = _binding!!
+
+    private val invites = mutableListOf<ContactInvite>()
 
     var title: String? = null
     var date: String? = null
     var startTime: String? = null
     var endTime: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = BottomsheetEventCreateBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
+        val repository = ContactRepository.Instance
+        val contacts = repository.getContacts()
+
+        invites.addAll(contacts.map { contact -> ContactInvite(contact) })
+
+        val friendAdapter = FriendAdapter(
+            invites,
+            requireContext()
+        )
+
+        binding.friendsRecyclerView.apply {
+            adapter = friendAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
 
         binding.spinner.adapter = ArrayAdapter(
-            context,
+            requireContext(),
             R.layout.event_type_spinner_item,
             EventType.entries
         )
@@ -56,6 +80,8 @@ class CreateEventBottomSheetDialog(context: Context, private val fragmentManager
         binding.buttonCreateEvent.setOnClickListener {
             checkFields()
         }
+
+        return binding.root
     }
 
     private fun checkFields() {
@@ -79,14 +105,18 @@ class CreateEventBottomSheetDialog(context: Context, private val fragmentManager
     private fun createEvent() {
         val type = binding.spinner.selectedItem.toString()
         val id = (Math.random() * 1_000_000).toLong()
+
+        val invitedContacts = invites.filter { it.isInvited }.map { it.contact }
         val event = Event(
             id,
             title = title!!,
             type = type,
             timeStamp =  date!!,
             startTime = startTime!!,
-            endTime = endTime!!
+            endTime = endTime!!,
+            invitedContacts = invitedContacts
         )
+        println(event)
         eventCreator.onEventCreated(event)
         dismiss()
     }
@@ -109,7 +139,7 @@ class CreateEventBottomSheetDialog(context: Context, private val fragmentManager
                 endTime = time
             }
         }
-        picker.show(fragmentManager, if(start) "timePickerStart" else "timePickerEnd")
+        picker.show(parentFragmentManager, if(start) "timePickerStart" else "timePickerEnd")
     }
 
     private fun showDatePicker(){
@@ -119,7 +149,7 @@ class CreateEventBottomSheetDialog(context: Context, private val fragmentManager
         picker.addOnPositiveButtonClickListener {
             handleSelectedDate(it)
         }
-        picker.show(fragmentManager, "datePicker")
+        picker.show(parentFragmentManager, "datePicker")
     }
 
     private fun handleSelectedDate(epoch: Long?) {
