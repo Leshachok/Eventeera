@@ -13,6 +13,9 @@ import app.eventeera.android.databinding.BottomsheetEventEditBinding
 import app.eventeera.android.util.EventManager
 import app.eventeera.android.util.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import java.time.Instant
@@ -181,7 +184,11 @@ class EditEventBottomSheetDialog(
     }
 
     private fun showDatePicker(){
+        val constraintsBuilder = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointForward.now()).build()
+
         val datePicker = MaterialDatePicker.Builder.datePicker()
+        datePicker.setCalendarConstraints(constraintsBuilder)
         datePicker.setTitleText("Оберіть дату!")
         val picker = datePicker.build()
         picker.addOnPositiveButtonClickListener {

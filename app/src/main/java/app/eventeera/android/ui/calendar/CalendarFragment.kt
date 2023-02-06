@@ -1,6 +1,9 @@
 package app.eventeera.android.ui.calendar
 
+import android.app.Application
+import android.content.Intent
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,7 +19,10 @@ import app.eventeera.android.ui.sheets.EditEventBottomSheetDialog
 import app.eventeera.android.ui.sheets.ViewEventBottomSheetDialog
 import app.eventeera.android.util.EventManager
 import app.eventeera.android.util.pattern
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -172,7 +178,11 @@ class CalendarFragment : Fragment(), EventManager {
 
 
     private fun showDatePicker() {
+        val constraintsBuilder = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointForward.now()).build()
+
         val datePicker = MaterialDatePicker.Builder.datePicker()
+        datePicker.setCalendarConstraints(constraintsBuilder)
         datePicker.setTitleText("Оберіть дату!")
         val picker = datePicker.build()
         picker.addOnPositiveButtonClickListener {
@@ -233,8 +243,53 @@ class CalendarFragment : Fragment(), EventManager {
                 adapter.notifyItemInserted(events.indexOf(event))
             }
         }
-
         viewModel.addEvent(event)
+
+        Snackbar
+            .make(binding.root, "Бажаєте додати подію в календар?", Snackbar.LENGTH_LONG)
+            .setAction("Так") {
+                createEventInCalendar(event)
+            }
+            .setBackgroundTint(resources.getColor(R.color.grey01))
+            .setActionTextColor(resources.getColor(R.color.bg01))
+            .setDuration(10000)
+            .show()
+    }
+
+
+
+    private fun createEventInCalendar(event: Event){
+        val date = LocalDate.parse(event.timeStamp)
+
+        val splitStart = event.startTime.split(':')
+        val startHour = splitStart.first().toInt()
+        val startMinute = splitStart[1].toInt()
+
+        val splitEnd = event.endTime.split(':')
+        val endHour = splitEnd.first().toInt()
+        val endMinute = splitEnd[1].toInt()
+
+        val startMillis: Long = Calendar.getInstance().run {
+            set(date.year, date.month.value, date.dayOfMonth, startHour, startMinute)
+            timeInMillis
+        }
+        val endMillis: Long = Calendar.getInstance().run {
+            set(date.year, date.month.value, date.dayOfMonth, endHour, endMinute)
+            timeInMillis
+        }
+
+        val intent = Intent(Intent.ACTION_EDIT);
+        intent.type = "vnd.android.cursor.item/event";
+        intent.putExtra(CalendarContract.Events.TITLE, event.title)
+        intent.putExtra(
+            CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+            startMillis)
+        intent.putExtra(
+            CalendarContract.EXTRA_EVENT_END_TIME,
+            endMillis)
+        intent.putExtra(CalendarContract.Events.ALL_DAY, false)
+
+        startActivity(intent)
     }
 
     override fun onEventEdited(event: Event) {
@@ -261,8 +316,8 @@ class CalendarFragment : Fragment(), EventManager {
     }
 
     override fun onEditEvent(event: Event) {
-        val bottomSheet = EditEventBottomSheetDialog(parentFragmentManager, this, event)
-        bottomSheet.show()
+        val bottomSheet = EditEventBottomSheetDialog(this, event)
+        bottomSheet.show(parentFragmentManager, "event_edit_sheet")
     }
 
     override fun onViewEvent(event: Event) {

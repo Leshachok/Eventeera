@@ -1,6 +1,8 @@
 package app.eventeera.android.ui.calendar
 
 import android.app.Application
+import android.content.Intent
+import android.provider.CalendarContract
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.*
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -63,5 +66,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun removeEvent(id: Long) {
         repository.removeEvent(id)
     }
+
 
 }

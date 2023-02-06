@@ -1,11 +1,19 @@
 package app.eventeera.android.ui.sheets
 
+import android.Manifest
+import android.content.ContentValues
+import android.content.Intent
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.net.Uri
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.eventeera.android.R
 import app.eventeera.android.data.model.ContactInvite
@@ -17,13 +25,18 @@ import app.eventeera.android.ui.adapter.FriendAdapter
 import app.eventeera.android.util.EventManager
 import app.eventeera.android.util.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
+
 
 class CreateEventBottomSheetDialog(private val eventCreator: EventManager) : BottomSheetDialogFragment(R.layout.bottomsheet_event_create) {
 
@@ -116,7 +129,6 @@ class CreateEventBottomSheetDialog(private val eventCreator: EventManager) : Bot
             endTime = endTime!!,
             invitedContacts = invitedContacts
         )
-        println(event)
         eventCreator.onEventCreated(event)
         dismiss()
     }
@@ -143,8 +155,13 @@ class CreateEventBottomSheetDialog(private val eventCreator: EventManager) : Bot
     }
 
     private fun showDatePicker(){
+        val constraintsBuilder = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointForward.now()).build()
+
         val datePicker = MaterialDatePicker.Builder.datePicker()
         datePicker.setTitleText("Оберіть дату!")
+        datePicker.setCalendarConstraints(constraintsBuilder)
+
         val picker = datePicker.build()
         picker.addOnPositiveButtonClickListener {
             handleSelectedDate(it)

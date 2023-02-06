@@ -7,7 +7,8 @@ data class Event(
     var timeStamp: String,
     var startTime: String,
     var endTime: String,
-    val invitedContacts: List<Contact> = mutableListOf()
+    val invitedContacts: List<Contact> = mutableListOf(),
+    var fileName: String? = null
 )
 
 class EventType {
